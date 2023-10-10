@@ -1,81 +1,92 @@
-﻿namespace BullsAndCows;
+﻿using System.Linq;
+
+namespace BullsAndCows;
 
 public  class Game
 {
-    private int AttemptsMade = 0;
-    private List<string> dictionary = new List<string>();
-    private string word;
-    private EnteredWord[] enteredWords = new EnteredWord[6];
+    private int _attemptsMade = 0;
+    private string _word;
+    private DictionaryOfRussianNouns _russianNouns = new DictionaryOfRussianNouns();
+    private EnteredWord[] _enteredWords = new EnteredWord[6];
 
     public void StartGame()
     {
-        LoadDictionary();
-        word = dictionary[Random.Shared.Next(0, dictionary.Count)];
+        _word = _russianNouns.GetRandomWord();
 
         Console.WriteLine("_ _ _ _ _");
 
         do
         {
-            enteredWords[AttemptsMade] = new EnteredWord();
-            ReloadMatches(enteredWords[AttemptsMade].Bulls);
-            ReloadMatches(enteredWords[AttemptsMade].Cows);
+            _enteredWords[_attemptsMade] = new EnteredWord();
+            ReloadMatches(_enteredWords[_attemptsMade].Bulls);
+            ReloadMatches(_enteredWords[_attemptsMade].Cows);
 
-            var enteredWord = Console.ReadLine();
-            while (dictionary.Find(x => x == enteredWord) == null)
-            {
-                Console.WriteLine("Такого слова нет");
-                enteredWord = Console.ReadLine();
-            }
-            enteredWords[AttemptsMade].Word = enteredWord;
-            for (int i = 0; i < enteredWord.Length; i++)
-            {
-                if (word[i] == enteredWord[i])
-                    enteredWords[AttemptsMade].Cows[i] = true;
-            }
-            for (int i = 0; i < enteredWord.Length; i++)
-            {
-                for (int j = 0; j < enteredWord.Length; j++)
-                    if (word[i] == enteredWord[j] && !enteredWords[AttemptsMade].Cows[i])
-                        enteredWords[AttemptsMade].Bulls[j] = true;
-            }
-            Console.Clear();
-            Console.WriteLine("_ _ _ _ _");
-            for (int i = 0; i <= AttemptsMade; i++)
-            {
-                for (int j = 0; j < enteredWords[i].Word.Length; j++)
-                    if (enteredWords[i].Cows[j])
-                    {
-                        Console.BackgroundColor = ConsoleColor.Green;
-                        Console.Write(enteredWords[i].Word[j]);
-                        Console.BackgroundColor = ConsoleColor.Black;
-                    }
-                    else if (enteredWords[i].Bulls[j])
-                    {
-                        Console.BackgroundColor = ConsoleColor.Yellow;
-                        Console.Write(enteredWords[i].Word[j]);
-                        Console.BackgroundColor = ConsoleColor.Black;
-                    }
-                    else
-                    {
-                        Console.Write(enteredWords[i].Word[j]);
-                    }
-                Console.WriteLine();
-            }
-            AttemptsMade++;
-        } while (!CheckingMatches(enteredWords[AttemptsMade - 1].Cows) && AttemptsMade != 6);
+            var enteredWord = EnterWord();
+            _enteredWords[_attemptsMade].Word = enteredWord;
+            FindCows(enteredWord);
+            FinBulls(enteredWord);
+            OutputOfResults(_enteredWords);
+            _attemptsMade++;
+        } while (!CheckingMatches(_enteredWords[_attemptsMade - 1].Cows) && _attemptsMade != 6);
     }
 
-    private void LoadDictionary()
+    private void FindCows(string enteredWord)
     {
-        StreamReader f = new StreamReader("russian_nouns.txt");
-        while (!f.EndOfStream)
+        for (int i = 0; i < enteredWord.Length; i++)
         {
-            string s = f.ReadLine();
-
-            if (s.Length == 5) dictionary.Add(s);
+            if (_word[i] == enteredWord[i])
+                _enteredWords[_attemptsMade].Cows[i] = true;
         }
-        f.Close();
     }
+
+    private void FinBulls(string enteredWord)
+    {
+        for (int i = 0; i < enteredWord.Length; i++)
+        {
+            for (int j = 0; j < enteredWord.Length; j++)
+                if (_word[i] == enteredWord[j] && !_enteredWords[_attemptsMade].Cows[i])
+                    _enteredWords[_attemptsMade].Bulls[j] = true;
+        }
+    }
+
+    private string EnterWord()
+    {
+        var enteredWord = Console.ReadLine();
+        while (!_russianNouns.WordFound(enteredWord))
+        {
+            Console.WriteLine("Такого слова нет");
+            enteredWord = Console.ReadLine();
+        }
+        return enteredWord;
+    }
+
+    private void OutputOfResults(EnteredWord[] EnteredWords)
+    {
+        Console.Clear();
+        Console.WriteLine("_ _ _ _ _");
+        for (int i = 0; i <= _attemptsMade; i++)
+        {
+            for (int j = 0; j < EnteredWords[i].Word.Length; j++)
+                if (EnteredWords[i].Cows[j])
+                {
+                    Console.BackgroundColor = ConsoleColor.Green;
+                    Console.Write(EnteredWords[i].Word[j]);
+                    Console.BackgroundColor = ConsoleColor.Black;
+                }
+                else if (EnteredWords[i].Bulls[j])
+                {
+                    Console.BackgroundColor = ConsoleColor.Yellow;
+                    Console.Write(EnteredWords[i].Word[j]);
+                    Console.BackgroundColor = ConsoleColor.Black;
+                }
+                else
+                {
+                    Console.Write(EnteredWords[i].Word[j]);
+                }
+            Console.WriteLine();
+        }
+    }
+
     private bool CheckingMatches(bool[] matches)
     {
         for (int i = 0; i < matches.Length; i++)
