@@ -18,8 +18,8 @@ public  class Game
         do
         {
             _enteredWords[_attemptsMade] = new EnteredWord();
-            ReloadMatches(_enteredWords[_attemptsMade].Bulls);
-            ReloadMatches(_enteredWords[_attemptsMade].Cows);
+            ResetMatches(_enteredWords[_attemptsMade].Bulls);
+            ResetMatches(_enteredWords[_attemptsMade].Cows);
 
             var enteredWord = EnterWord();
             _enteredWords[_attemptsMade].Word = enteredWord;
@@ -52,7 +52,7 @@ public  class Game
     private string EnterWord()
     {
         var enteredWord = Console.ReadLine();
-        while (!_russianNouns.WordFound(enteredWord))
+        while (!_russianNouns.FindWord(enteredWord))
         {
             Console.WriteLine("Такого слова нет");
             enteredWord = Console.ReadLine();
@@ -69,15 +69,17 @@ public  class Game
             for (int j = 0; j < EnteredWords[i].Word.Length; j++)
                 if (EnteredWords[i].Cows[j])
                 {
-                    Console.BackgroundColor = ConsoleColor.Green;
-                    Console.Write(EnteredWords[i].Word[j]);
-                    Console.BackgroundColor = ConsoleColor.Black;
+                    using(new ChangeConsoleColor(ConsoleColor.Green))
+                    {
+                        Console.Write(EnteredWords[i].Word[j]);
+                    }
                 }
                 else if (EnteredWords[i].Bulls[j])
                 {
-                    Console.BackgroundColor = ConsoleColor.Yellow;
-                    Console.Write(EnteredWords[i].Word[j]);
-                    Console.BackgroundColor = ConsoleColor.Black;
+                    using (new ChangeConsoleColor(ConsoleColor.Yellow))
+                    {
+                        Console.Write(EnteredWords[i].Word[j]);
+                    }
                 }
                 else
                 {
@@ -89,15 +91,10 @@ public  class Game
 
     private bool CheckingMatches(bool[] matches)
     {
-        for (int i = 0; i < matches.Length; i++)
-        {
-            if (!matches[i])
-                return false;
-        }
-        return true;
+        return matches.All(x => x);
     }
 
-    private void ReloadMatches(bool[] matches)
+    private void ResetMatches(bool[] matches)
     {
         for (int i = 0; i < matches.Length; i++)
         {

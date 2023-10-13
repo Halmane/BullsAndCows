@@ -2,9 +2,14 @@
 
 public class DictionaryOfRussianNouns
 {
-    private HashSet<string> _wordsList = new HashSet<string>();
+    private readonly HashSet<string> _wordsList = new HashSet<string>();
 
     public DictionaryOfRussianNouns()
+    {
+        LoadWordsList();
+    }
+
+    private void LoadWordsList()
     {
         using var f = new StreamReader("Resources\\russian_nouns.txt");
         while (!f.EndOfStream)
@@ -20,7 +25,7 @@ public class DictionaryOfRussianNouns
         return _wordsList.ElementAt(Random.Shared.Next(0, _wordsList.Count));
     }
 
-    public bool WordFound(string s)
+    public bool FindWord(string s)
     {
         return _wordsList.Contains(s);
     }
