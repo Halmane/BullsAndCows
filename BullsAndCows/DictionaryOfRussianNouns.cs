@@ -25,7 +25,7 @@ public class DictionaryOfRussianNouns
         return _wordsList.ElementAt(Random.Shared.Next(0, _wordsList.Count));
     }
 
-    public bool FindWord(string s)
+    public bool CheckIfContainsWord(string s)
     {
         return _wordsList.Contains(s);
     }

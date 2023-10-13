@@ -52,7 +52,7 @@ public  class Game
     private string EnterWord()
     {
         var enteredWord = Console.ReadLine();
-        while (!_russianNouns.FindWord(enteredWord))
+        while (!_russianNouns.IsContainsWord(enteredWord))
         {
             Console.WriteLine("Такого слова нет");
             enteredWord = Console.ReadLine();
